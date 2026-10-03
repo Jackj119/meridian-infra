@@ -19,29 +19,25 @@ terraform {
   }
 }
 
-# When use_localstack is true, calls go to LocalStack with dummy credentials
-# and the skip_* flags stop the provider from validating them against real AWS.
-# When false (as in CI), the provider uses the standard AWS credential chain.
+# This project targets LocalStack only; every service the config uses is
+# routed to it. Credentials come from AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY
+# (dummy values such as "test" are fine). The skip_* flags stop the provider
+# from contacting real AWS to validate them.
 provider "aws" {
-  region     = var.region
-  access_key = var.use_localstack ? "test" : null
-  secret_key = var.use_localstack ? "test" : null
+  region = var.region
 
-  skip_credentials_validation = var.use_localstack
-  skip_metadata_api_check     = var.use_localstack
-  skip_requesting_account_id  = var.use_localstack
+  skip_credentials_validation = true
+  skip_metadata_api_check     = true
+  skip_requesting_account_id  = true
 
   # LocalStack serves S3 at localhost:4566, not <bucket>.s3.amazonaws.com.
-  s3_use_path_style = var.use_localstack
+  s3_use_path_style = true
 
-  dynamic "endpoints" {
-    for_each = var.use_localstack ? [1] : []
-    content {
-      ec2 = var.localstack_endpoint
-      s3  = var.localstack_endpoint
-      sts = var.localstack_endpoint
-      iam = var.localstack_endpoint
-    }
+  endpoints {
+    ec2 = var.localstack_endpoint
+    s3  = var.localstack_endpoint
+    sts = var.localstack_endpoint
+    iam = var.localstack_endpoint
   }
 
   default_tags {
