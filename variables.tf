@@ -15,12 +15,6 @@ variable "environment" {
   }
 }
 
-variable "use_localstack" {
-  description = "Send AWS calls to LocalStack instead of real AWS. Set to false in CI."
-  type        = bool
-  default     = true
-}
-
 variable "localstack_endpoint" {
   description = "LocalStack edge endpoint that all AWS service calls are sent to."
   type        = string
